@@ -1,0 +1,23 @@
+# Ignorar dependencias de Python
+__pycache__/
+*.pyc
+.venv/
+env/
+
+# Ignorar archivos de configuración de IDE
+.vscode/
+.idea/
+
+# Ignorar archivos de Jupyter Notebook
+.ipynb_checkpoints/
+
+# --- ¡LA REGLA MÁS IMPORTANTE! ---
+# Ignorar todo el contenido dentro de la carpeta /data
+# Solo rastrearemos el archivo .gitkeep para mantener la carpeta
+data/*
+!data/.gitkeep
+
+# Ignorar logs y archivos de salida
+*.log
+*.csv
+*.zip
