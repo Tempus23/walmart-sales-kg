@@ -11,9 +11,7 @@ env/
 # Ignorar archivos de Jupyter Notebook
 .ipynb_checkpoints/
 
-# --- ¡LA REGLA MÁS IMPORTANTE! ---
 # Ignorar todo el contenido dentro de la carpeta /data
-# Solo rastrearemos el archivo .gitkeep para mantener la carpeta
 data/*
 !data/.gitkeep
 
