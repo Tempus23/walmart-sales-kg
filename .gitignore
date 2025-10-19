@@ -19,3 +19,6 @@ data/*
 *.log
 *.csv
 *.zip
+
+# Ignorar modelos creados
+outputs/*

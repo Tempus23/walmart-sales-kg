@@ -84,7 +84,9 @@ class WalmartDataloader:
     def _clean_na_values(self, df: pd.DataFrame) -> pd.DataFrame:
         """Cleans the DataFrame by handling missing values."""
         # Example cleaning: Drop rows with any missing values
-        df = df.dropna().reset_index(drop=True)
+        if df.isna().sum().sum() > 0:
+            print("Cleaning NA values...")
+            df = df.dropna().reset_index(drop=True)
         return df
 
     def _date_parsing(self, df: pd.DataFrame, key: str) -> pd.DataFrame:
@@ -141,13 +143,3 @@ class WalmartDataloader:
         df = df.fillna(0)
 
         return df
-
-
-if __name__ == "__main__":
-    data_loader = WalmartDataloader()
-    df = data_loader.get_clean_data()
-
-    # plt.figure(figsize=(8,5))
-    # sns.heatmap(df.corr(), annot=True, cmap="Purples")
-    # plt.title("Correlation Heatmap")
-    # plt.show()
