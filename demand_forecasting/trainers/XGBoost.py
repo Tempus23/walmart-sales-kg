@@ -1,51 +1,48 @@
-from abc import ABC, abstractmethod
-from pathlib import Path
-
-import joblib
-import lightgbm as lgb
+# demand_forecasting/xgboost_model.py
+import xgboost as xgb
 import numpy as np
-from matplotlib import pyplot as plt
 from sklearn.metrics import mean_absolute_error
-
+import joblib
+from pathlib import Path
+from typing import Optional
 from .base import BaseModel
 from ..walmart_data import WalmartFeatures
 
 
-class LightGBMTrainer(BaseModel):
+class XGBoostTrainer(BaseModel):
     def __init__(
         self,
-        objective="regression_l1",
-        metric="l1",
+        objective="reg:squarederror",  # Objetivo común para regresión en XGB
+        eval_metric="mae",
         n_estimators=1000,
         learning_rate=0.01,
         n_jobs=-1,
         random_state=42,
+        enable_categorical=True,  # Para manejo moderno de categóricas
     ) -> None:
 
-        self.model = lgb.LGBMRegressor(
-            objective="regression_l1",
-            metric="l1",
-            n_estimators=1000,
-            learning_rate=0.01,
-            n_jobs=-1,
-            random_state=42,
+        self.model = xgb.XGBRegressor(
+            objective=objective,
+            eval_metric=eval_metric,
+            n_estimators=n_estimators,
+            learning_rate=learning_rate,
+            n_jobs=n_jobs,
+            random_state=random_state,
+            enable_categorical=enable_categorical,  # Requiere que las dtypes sean 'category'
         )
 
     def train(self, X_train, y_train, X_val, y_val, caracteristicas_categoricas):
-        """Entrena y devuelve un modelo LightGBM."""
+        """Entrena y devuelve un modelo XGBoost."""
 
-        print("Iniciando entrenamiento...")
-        self.model.fit(
-            X_train,
-            y_train,
-            eval_set=[(X_val, y_val)],
-            eval_metric="l1",
-            callbacks=[
-                lgb.early_stopping(100, verbose=True),
-                lgb.log_evaluation(period=100),
-            ],
-            # categorical_feature=caracteristicas_categoricas
-        )
+        print("Iniciando entrenamiento de XGBoost...")
+
+        # Para que 'enable_categorical=True' funcione, las columnas
+        # categóricas en X_train y X_val deben ser de tipo 'category'
+        for col in caracteristicas_categoricas:
+            X_train[col] = X_train[col].astype("category")
+            X_val[col] = X_val[col].astype("category")
+
+        self.model.fit(X_train, y_train, eval_set=[(X_val, y_val)], verbose=100)
         print("¡Entrenamiento completado!")
         return self.model
 
@@ -55,8 +52,10 @@ class LightGBMTrainer(BaseModel):
         predicciones_val = self.model.predict(X_val)
 
         # Calcular WMAE (Métrica clave de Walmart)
-        weights = X_val[WalmartFeatures.HOLIDAY_FLAG.value].apply(
-            lambda x: 5 if x else 1
+        weights = (
+            X_val[WalmartFeatures.HOLIDAY_FLAG.value]
+            .apply(lambda x: 5 if x else 1)
+            .astype(float)
         )
         error_absoluto = np.abs(y_val - predicciones_val)
         wmae = (np.sum(weights * error_absoluto)) / (np.sum(weights))
@@ -81,16 +80,12 @@ class LightGBMTrainer(BaseModel):
         print(f"Guardando modelo en: {filepath}")
         joblib.dump(self.model, filepath)
 
-    def plot_feature_importance(self, save_path=None):
+    def plot_feature_importance(self, save_path: Optional[Path] = None):
         """Grafica la importancia de las características del modelo."""
+        import matplotlib.pyplot as plt
 
-        lgb.plot_importance(
-            self.model, figsize=(10, 8), max_num_features=15, height=0.7
-        )
-        plt.title("Importancia de las Características (Feature Importance)")
-        plt.tight_layout()
-
+        xgb.plot_importance(self.model)
         if save_path:
-            print(f"Guardando gráfico de importancia en: {save_path}")
             plt.savefig(save_path)
+            print(f"Importancia de características guardada en: {save_path}")
         plt.show()

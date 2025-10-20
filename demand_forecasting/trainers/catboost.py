@@ -1,50 +1,46 @@
-from abc import ABC, abstractmethod
-from pathlib import Path
-
-import joblib
-import lightgbm as lgb
+# demand_forecasting/catboost_model.py
+from catboost import CatBoostRegressor
 import numpy as np
-from matplotlib import pyplot as plt
 from sklearn.metrics import mean_absolute_error
-
+import joblib
+from pathlib import Path
 from .base import BaseModel
 from ..walmart_data import WalmartFeatures
 
 
-class LightGBMTrainer(BaseModel):
+class CatBoostTrainer(BaseModel):
     def __init__(
         self,
-        objective="regression_l1",
-        metric="l1",
-        n_estimators=1000,
+        loss_function="MAE",  # Equivalente a 'regression_l1'
+        eval_metric="MAE",
+        iterations=1000,
         learning_rate=0.01,
-        n_jobs=-1,
-        random_state=42,
+        thread_count=-1,
+        random_seed=42,
+        verbose=100,
     ) -> None:
 
-        self.model = lgb.LGBMRegressor(
-            objective="regression_l1",
-            metric="l1",
-            n_estimators=1000,
-            learning_rate=0.01,
-            n_jobs=-1,
-            random_state=42,
+        self.model = CatBoostRegressor(
+            loss_function=loss_function,
+            eval_metric=eval_metric,
+            iterations=iterations,
+            learning_rate=learning_rate,
+            thread_count=thread_count,
+            random_seed=random_seed,
+            verbose=verbose,
         )
 
     def train(self, X_train, y_train, X_val, y_val, caracteristicas_categoricas):
-        """Entrena y devuelve un modelo LightGBM."""
+        """Entrena y devuelve un modelo CatBoost."""
 
-        print("Iniciando entrenamiento...")
+        print("Iniciando entrenamiento de CatBoost...")
         self.model.fit(
             X_train,
             y_train,
-            eval_set=[(X_val, y_val)],
-            eval_metric="l1",
-            callbacks=[
-                lgb.early_stopping(100, verbose=True),
-                lgb.log_evaluation(period=100),
-            ],
-            # categorical_feature=caracteristicas_categoricas
+            eval_set=(X_val, y_val),
+            cat_features=caracteristicas_categoricas,  # Manejo nativo
+            early_stopping_rounds=100,
+            use_best_model=True,
         )
         print("¡Entrenamiento completado!")
         return self.model
@@ -81,16 +77,20 @@ class LightGBMTrainer(BaseModel):
         print(f"Guardando modelo en: {filepath}")
         joblib.dump(self.model, filepath)
 
-    def plot_feature_importance(self, save_path=None):
+    def plot_feature_importance(self, save_path: Path = None):
         """Grafica la importancia de las características del modelo."""
+        import matplotlib.pyplot as plt
 
-        lgb.plot_importance(
-            self.model, figsize=(10, 8), max_num_features=15, height=0.7
-        )
-        plt.title("Importancia de las Características (Feature Importance)")
-        plt.tight_layout()
+        feature_importances = self.model.get_feature_importance()
+        feature_names = self.model.feature_names_
+
+        plt.figure(figsize=(10, 6))
+        plt.barh(feature_names, feature_importances)
+        plt.xlabel("Importancia de la característica")
+        plt.title("Importancia de las características - CatBoost")
 
         if save_path:
-            print(f"Guardando gráfico de importancia en: {save_path}")
             plt.savefig(save_path)
-        plt.show()
+            print(f"Gráfico de importancia de características guardado en: {save_path}")
+        else:
+            plt.show()
