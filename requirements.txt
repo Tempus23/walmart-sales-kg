@@ -5,3 +5,6 @@ scikit-learn
 matplotlib
 seaborn
 kaggle
+prophet
+catboost
+tensorflow

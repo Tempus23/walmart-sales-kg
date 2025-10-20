@@ -10,6 +10,8 @@ from demand_forecasting.trainers import (
     XGBoostTrainer,
     CatBoostTrainer,
     RandomForestTrainer,
+    ProphetTrainer,
+    LSTMTrainer
 )
 
 # --- 0. Configuración del Proyecto ---
@@ -46,7 +48,7 @@ CARACTERISTICAS_CATEGORICAS = [
 def main():
     data_loader = WalmartDataloader()
     df = data_loader.get_clean_data()
-    trainer = RandomForestTrainer()
+    trainer = LSTMTrainer()
 
     X_train, y_train, X_val, y_val = split_data_by_date(
         df, FECHA_CORTE_VAL, CARACTERISTICAS, OBJETIVO
