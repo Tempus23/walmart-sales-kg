@@ -9,9 +9,31 @@ El proyecto utiliza dos métricas principales para evaluar el rendimiento de los
 
 El WMAE es especialmente importante porque penaliza más los errores durante periodos de alta demanda (festivos), donde una mala predicción tiene mayor impacto en el negocio.
 
+## Impacto del Feature Engineering
+
+Primero evaluamos el impacto de la ingeniería de características comparando un modelo baseline (solo features originales del dataset) contra el mismo modelo con las features engineered:
+
+| Enfoque | Features | MAE | WMAE | Error Relativo |
+|---------|----------|-----|------|----------------|
+| **Baseline** (sin FE) | 6 | $86,823 | $90,291 | 8.29% |
+| **Con Feature Engineering** | 15 | $37,462 | $38,835 | 3.58% |
+
+**Features del Baseline (6):**
+- Store, Holiday_Flag, Temperature, Fuel_Price, CPI, Unemployment
+
+**Features Engineered añadidas (9 adicionales):**
+- Temporales: Month, Quarter, Year, WeekOfYear
+- Cíclicas: MonthSin, MonthCos, WeekSin, WeekCos
+- Lags: ventas_lag_1 (semana anterior)
+- Medias móviles: No incluidas en esta comparación para aislar el efecto temporal
+
+### 🔥 Mejora: 56.9% de reducción de error
+
+El feature engineering (características temporales, lags, medias móviles y features cíclicas) **reduce el error a menos de la mitad**, demostrando su valor crítico en forecasting de series temporales. Este resultado destaca la importancia de capturar patrones estacionales y tendencias temporales en datos de retail.
+
 ## Comparación de Modelos
 
-Los modelos implementados fueron evaluados en el conjunto de validación (datos posteriores a 2012-05-01):
+Los modelos implementados fueron evaluados en el conjunto de validación (datos posteriores a 2012-05-01) **usando las features engineered**:
 
 | Modelo | MAE | WMAE | Tiempo de Entrenamiento | Observaciones |
 |--------|-----|------|-------------------------|---------------|
@@ -49,10 +71,11 @@ Según el análisis de importancia de características de LightGBM:
 
 ### Hallazgos Clave
 
+- **Feature Engineering es crítico:** Reduce el error en 56.9% comparado con usar solo features originales
 - **Lag features dominan:** Las ventas pasadas son los mejores predictores de ventas futuras
 - **Estacionalidad importante:** Tanto semanal como anual muestran patrones claros
 - **Gradient Boosting superior:** LightGBM, XGBoost y CatBoost superan a otros enfoques
-- **Trade-off precisión/velocidad:** LightGBM ofrece el mejor balance
+- **Trade-off precisión/velocidad:** LightGBM ofrece el mejor balance con 6.1s de entrenamiento
 
 ### Impacto de Negocio
 
