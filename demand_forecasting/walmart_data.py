@@ -19,6 +19,12 @@ ACTUAL_PRINTS = 0
 
 
 class WalmartFeatures(str, Enum):
+    """Enum con todas las características (features) del dataset de Walmart.
+
+    Incluye tanto las variables originales del dataset como las características
+    generadas mediante ingeniería de características (temporal, lags, medias móviles).
+    """
+    # Features originales del dataset
     STORE = "Store"
     DATE = "Date"
     WEEKLY_SALES = "Weekly_Sales"
@@ -28,16 +34,22 @@ class WalmartFeatures(str, Enum):
     CPI = "CPI"
     UNEMPLOYMENT = "Unemployment"
 
-    # Feature engineering
+    # Feature engineering - Características temporales
     MONTH = "Month"
     QUARTER = "Quarter"
     YEAR = "Year"
     WEEK_OF_YEAR = "WeekOfYear"
+
+    # Feature engineering - Lags (rezagos)
     VENTAS_LAG_1 = "ventas_lag_1"
     VENTAS_LAG_4 = "ventas_lag_4"
     VENTAS_LAG_52 = "ventas_lag_52"
+
+    # Feature engineering - Medias móviles
     MEDIA_MOVIL_4_SEMANAS = "media_movil_4_semanas"
     MEDIA_MOVIL_12_SEMANAS = "media_movil_12_semanas"
+
+    # Feature engineering - Características cíclicas
     MONTH_SIN = "MonthSin"
     MONTH_COS = "MonthCos"
     WEEK_SIN = "WeekSin"
@@ -45,7 +57,18 @@ class WalmartFeatures(str, Enum):
 
 
 class WalmartDataloader:
+    """Clase para descargar, cargar y procesar datos de ventas de Walmart desde Kaggle.
+
+    Maneja la descarga automática del dataset, limpieza de datos, parsing de fechas
+    y generación de características de ingeniería.
+    """
     def __init__(self, dataset_slug: str = DATASET_SLUG, data_path: Path = DATA_PATH):
+        """Inicializa el dataloader de Walmart.
+
+        Args:
+            dataset_slug: Slug del dataset en Kaggle (formato: 'usuario/nombre-dataset').
+            data_path: Ruta local donde se guardarán/leerán los datos.
+        """
         self.dataset_slug = dataset_slug
         self.data_path = data_path
 
@@ -116,7 +139,18 @@ class WalmartDataloader:
 
     @staticmethod
     def add_features_to_data(df: pd.DataFrame) -> pd.DataFrame:
+        """Genera características de ingeniería temporal y de series temporales.
 
+        Args:
+            df: DataFrame con columna 'Date' y 'Weekly_Sales'.
+
+        Returns:
+            DataFrame con características adicionales:
+            - Temporales: Month, Quarter, Year, WeekOfYear
+            - Cíclicas: MonthSin, MonthCos, WeekSin, WeekCos
+            - Lags: ventas_lag_1, ventas_lag_4, ventas_lag_52
+            - Medias móviles: media_movil_4_semanas, media_movil_12_semanas
+        """
         df[WalmartFeatures.MONTH] = df[WalmartFeatures.DATE].dt.month
         df[WalmartFeatures.QUARTER] = df[WalmartFeatures.DATE].dt.quarter
         df[WalmartFeatures.YEAR] = df[WalmartFeatures.DATE].dt.year
