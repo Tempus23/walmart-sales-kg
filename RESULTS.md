@@ -69,9 +69,11 @@ El modelo utiliza las siguientes características para realizar predicciones:
 
 ## División de Datos
 
-- **Fecha de corte**: 2012-05-01
+- **Fecha de corte**: 2012-05-01 (configurado en training.py)
 - **Conjunto de entrenamiento**: Datos anteriores a la fecha de corte
 - **Conjunto de validación**: Datos posteriores a la fecha de corte
+
+*Nota: La fecha de corte puede ajustarse según el rango de fechas del dataset disponible.*
 
 ## AutoML con TPOT
 

@@ -178,12 +178,13 @@ Para ver resultados detallados, métricas y análisis de los modelos, consulta e
 En `training.py`, modifica la línea donde se instancia el trainer:
 
 ```python
-# Cambiar de LSTMTrainer a otro modelo:
-trainer = LightGBMTrainer()    # LightGBM
-# trainer = XGBoostTrainer()   # XGBoost
-# trainer = CatBoostTrainer()  # CatBoost
+# Por defecto usa LSTMTrainer. Puedes cambiar a otro modelo:
+# trainer = LightGBMTrainer()    # LightGBM
+# trainer = XGBoostTrainer()     # XGBoost
+# trainer = CatBoostTrainer()    # CatBoost
 # trainer = RandomForestTrainer()  # Random Forest
-# trainer = ProphetTrainer()   # Prophet
+# trainer = ProphetTrainer()     # Prophet
+trainer = LSTMTrainer()          # LSTM (actual)
 ```
 
 ### Ajustar Características
