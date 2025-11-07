@@ -31,6 +31,12 @@ CARACTERISTICAS = [
     WalmartFeatures.HOLIDAY_FLAG.value,
     WalmartFeatures.MONTH.value,
     WalmartFeatures.QUARTER.value,
+    WalmartFeatures.YEAR.value,
+    WalmartFeatures.WEEK_OF_YEAR.value,
+    WalmartFeatures.MONTH_SIN.value,
+    WalmartFeatures.MONTH_COS.value,
+    WalmartFeatures.WEEK_SIN.value,
+    WalmartFeatures.WEEK_COS.value,
     WalmartFeatures.VENTAS_LAG_1.value,
     WalmartFeatures.VENTAS_LAG_4.value,
     WalmartFeatures.VENTAS_LAG_52.value,
@@ -42,6 +48,8 @@ CARACTERISTICAS_CATEGORICAS = [
     WalmartFeatures.HOLIDAY_FLAG.value,
     WalmartFeatures.MONTH.value,
     WalmartFeatures.QUARTER.value,
+    WalmartFeatures.YEAR.value,
+    WalmartFeatures.WEEK_OF_YEAR.value,
 ]
 
 

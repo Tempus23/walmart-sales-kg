@@ -8,6 +8,7 @@ See: https://www.kaggle.com/docs/api
 from pathlib import Path
 import kaggle
 import pandas as pd
+import numpy as np
 from enum import Enum
 
 
@@ -30,11 +31,17 @@ class WalmartFeatures(str, Enum):
     # Feature engineering
     MONTH = "Month"
     QUARTER = "Quarter"
+    YEAR = "Year"
+    WEEK_OF_YEAR = "WeekOfYear"
     VENTAS_LAG_1 = "ventas_lag_1"
     VENTAS_LAG_4 = "ventas_lag_4"
     VENTAS_LAG_52 = "ventas_lag_52"
     MEDIA_MOVIL_4_SEMANAS = "media_movil_4_semanas"
     MEDIA_MOVIL_12_SEMANAS = "media_movil_12_semanas"
+    MONTH_SIN = "MonthSin"
+    MONTH_COS = "MonthCos"
+    WEEK_SIN = "WeekSin"
+    WEEK_COS = "WeekCos"
 
 
 class WalmartDataloader:
@@ -112,6 +119,24 @@ class WalmartDataloader:
 
         df[WalmartFeatures.MONTH] = df[WalmartFeatures.DATE].dt.month
         df[WalmartFeatures.QUARTER] = df[WalmartFeatures.DATE].dt.quarter
+        df[WalmartFeatures.YEAR] = df[WalmartFeatures.DATE].dt.year
+        df[WalmartFeatures.WEEK_OF_YEAR] = (
+            df[WalmartFeatures.DATE].dt.isocalendar().week.astype(int)
+        )
+
+        # Cyclical features
+        df[WalmartFeatures.MONTH_SIN] = np.sin(
+            2 * np.pi * df[WalmartFeatures.MONTH] / 12
+        )
+        df[WalmartFeatures.MONTH_COS] = np.cos(
+            2 * np.pi * df[WalmartFeatures.MONTH] / 12
+        )
+        df[WalmartFeatures.WEEK_SIN] = np.sin(
+            2 * np.pi * df[WalmartFeatures.WEEK_OF_YEAR] / 52
+        )
+        df[WalmartFeatures.WEEK_COS] = np.cos(
+            2 * np.pi * df[WalmartFeatures.WEEK_OF_YEAR] / 52
+        )
 
         agrupado = df.groupby([WalmartFeatures.STORE])
 

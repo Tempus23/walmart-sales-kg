@@ -8,7 +8,7 @@ import joblib
 from pathlib import Path
 import tensorflow as tf
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import LSTM, Dense, Input
+from tensorflow.keras.layers import LSTM, Dense, Input, Dropout
 from tensorflow.keras.callbacks import EarlyStopping
 
 from .base import BaseModel
@@ -67,7 +67,11 @@ class LSTMTrainer(BaseModel):
         n_features = X_train.shape[1]
         self.model = Sequential([
             Input(shape=(self.timesteps, n_features)),
-            LSTM(50, activation='relu'),
+            LSTM(100, return_sequences=True),
+            Dropout(0.2),
+            LSTM(50),
+            Dropout(0.2),
+            Dense(25, activation='relu'),
             Dense(1)
         ])
         
